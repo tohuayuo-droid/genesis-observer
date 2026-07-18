@@ -45,25 +45,6 @@ public final class DroneCameraController {
     if (client.player == null || client.world == null) {
         return;
     }
-    public void stop() {
-
-    active = false;
-
-}
-
-    public void skipToNextTarget(MinecraftClient client) {
-
-    if (!active || client.player == null || client.world == null) {
-
-        return;
-
-    }
-
-    chooseNextTarget(client);
-
-    changeState(DroneCameraState.TRAVEL);
-
-}
 
     double groundY = getGroundY(
             client,
@@ -90,6 +71,18 @@ public final class DroneCameraController {
     changeState(DroneCameraState.TRAVEL);
 }
 
+public void stop() {
+    active = false;
+}
+
+public void skipToNextTarget(MinecraftClient client) {
+    if (!active || client.player == null || client.world == null) {
+        return;
+    }
+
+    chooseNextTarget(client);
+    changeState(DroneCameraState.TRAVEL);
+}
     public void tick(MinecraftClient client) {
         if (!active || client.player == null || client.world == null) {
             return;

@@ -42,29 +42,34 @@ public final class DroneCameraController {
     }
 
     public void start(MinecraftClient client) {
-        if (client.player == null || client.world == null) {
-            return;
-        }
-
-        active = true;
-        smoothedYaw = client.player.getYaw();
-        smoothedPitch = client.player.getPitch();
-        chooseNextTarget(client);
-        changeState(DroneCameraState.TRAVEL);
+    if (client.player == null || client.world == null) {
+        return;
     }
 
-    public void stop() {
-        active = false;
+    double groundY = getGroundY(
+            client,
+            client.player.getX(),
+            client.player.getZ()
+    );
+
+    double safeStartY = groundY + 40.0;
+
+    if (client.player.getY() < groundY + 10.0) {
+        client.player.setPosition(
+                client.player.getX(),
+                safeStartY,
+                client.player.getZ()
+        );
+
+        client.player.setVelocity(Vec3d.ZERO);
     }
 
-    public void skipToNextTarget(MinecraftClient client) {
-        if (!active || client.player == null || client.world == null) {
-            return;
-        }
-
-        chooseNextTarget(client);
-        changeState(DroneCameraState.TRAVEL);
-    }
+    active = true;
+    smoothedYaw = client.player.getYaw();
+    smoothedPitch = client.player.getPitch();
+    chooseNextTarget(client);
+    changeState(DroneCameraState.TRAVEL);
+}
 
     public void tick(MinecraftClient client) {
         if (!active || client.player == null || client.world == null) {

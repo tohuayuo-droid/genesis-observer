@@ -85,7 +85,7 @@ public final class DroneCameraController {
                 target.z
         );
 
-        moveTowards(player, cruiseTarget, 0.018, 1.65);
+        moveTowards(player, cruiseTarget, 0.010, 0.55);
         lookTowards(player, new Vec3d(target.x, groundY + 8.0, target.z), 0.035f);
 
         if (horizontalDistance(player.getPos(), target) < 95.0) {

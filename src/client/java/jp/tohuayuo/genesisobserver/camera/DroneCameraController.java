@@ -1,5 +1,9 @@
 package jp.tohuayuo.genesisobserver.camera;
 
+import jp.tohuayuo.genesisobserver.target.ObservationTarget;
+import jp.tohuayuo.genesisobserver.target.TargetFinder;
+import jp.tohuayuo.genesisobserver.target.VillageFinder;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.world.Heightmap;
@@ -10,7 +14,7 @@ import java.util.Random;
 
 public final class DroneCameraController {
     private static final Random RANDOM = new Random();
-
+    
     private static final double SAFE_MIN_Y = 105.0;
     private static final double TRAVEL_HEIGHT = 125.0;
     private static final double APPROACH_HEIGHT = 82.0;
@@ -30,6 +34,8 @@ public final class DroneCameraController {
     private double orbitAngle;
     private float smoothedYaw;
     private float smoothedPitch;
+
+    private final TargetFinder villageFinder = new VillageFinder();
 
     public boolean isActive() {
         return active;
@@ -166,18 +172,26 @@ public final class DroneCameraController {
     }
 
     private void chooseNextTarget(MinecraftClient client) {
-        ClientPlayerEntity player = client.player;
+    ObservationTarget observation = villageFinder.find(client);
 
-        double distance = 240.0 + RANDOM.nextDouble() * 260.0;
-        double direction = RANDOM.nextDouble() * Math.PI * 2.0;
-
-        double x = player.getX() + Math.cos(direction) * distance;
-        double z = player.getZ() + Math.sin(direction) * distance;
-        double groundY = getGroundY(client, x, z);
-
-        target = new Vec3d(x, groundY, z);
+    if (observation != null) {
+        target = observation.position().toCenterPos();
         orbitAngle = RANDOM.nextDouble() * Math.PI * 2.0;
+        return;
     }
+
+    ClientPlayerEntity player = client.player;
+
+    double distance = 240.0 + RANDOM.nextDouble() * 260.0;
+    double direction = RANDOM.nextDouble() * Math.PI * 2.0;
+
+    double x = player.getX() + Math.cos(direction) * distance;
+    double z = player.getZ() + Math.sin(direction) * distance;
+    double groundY = getGroundY(client, x, z);
+
+    target = new Vec3d(x, groundY, z);
+    orbitAngle = RANDOM.nextDouble() * Math.PI * 2.0;
+}
 
     private void moveTowards(
             ClientPlayerEntity player,

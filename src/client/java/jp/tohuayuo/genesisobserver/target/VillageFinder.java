@@ -1,5 +1,9 @@
 package jp.tohuayuo.genesisobserver.target;
 
+
+import java.util.HashSet;
+import java.util.Set;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.registry.tag.StructureTags;
 import net.minecraft.server.integrated.IntegratedServer;
@@ -13,7 +17,7 @@ public final class VillageFinder implements TargetFinder {
     private static final int SAME_VILLAGE_DISTANCE = 250;
     private static final int VILLAGE_PRIORITY = 50;
 
-    private BlockPos lastVillagePosition;
+    private final Set<BlockPos> visitedVillages = new HashSet<>();
 
     @Override
     public ObservationTarget find(MinecraftClient client) {
@@ -80,9 +84,10 @@ public final class VillageFinder implements TargetFinder {
             );
 
             if (result != null
-                    && !isSameVillage(result, previousVillage)) {
-                return result;
-            }
+                && !hasVisited(result)) {
+                 visitedVillages.add(result);
+            return result;
+}
         }
 
         return null;
@@ -113,3 +118,18 @@ public final class VillageFinder implements TargetFinder {
         ) < SAME_VILLAGE_DISTANCE;
     }
 }
+private boolean hasVisited(BlockPos village) {
+
+    for (BlockPos visited : visitedVillages) {
+
+        double dx = visited.getX() - village.getX();
+        double dz = visited.getZ() - village.getZ();
+
+        if (Math.hypot(dx, dz) < SAME_VILLAGE_DISTANCE) {
+            return true;
+        }
+    }
+
+    return false;
+}
+

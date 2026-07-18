@@ -1,0 +1,5 @@
+{
+  "key.genesis_observer.toggle": "自動巡回カメラを開始・停止",
+  "key.genesis_observer.next": "次の観測地点へ",
+  "key.category.genesis_observer": "Genesis Observer"
+}

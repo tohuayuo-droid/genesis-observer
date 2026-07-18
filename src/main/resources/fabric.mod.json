@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "genesis_observer",
+  "version": "${version}",
+  "name": "Genesis Observer",
+  "description": "Minecraft世界を自動巡回する観測カメラ。",
+  "authors": ["tohuayuo"],
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "jp.tohuayuo.genesisobserver.GenesisObserverClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.14",
+    "minecraft": "1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}

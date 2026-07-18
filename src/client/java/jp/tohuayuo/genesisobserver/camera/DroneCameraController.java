@@ -197,8 +197,7 @@ public final class DroneCameraController {
         double step = Math.min(maximumStep, distance * smoothing + 0.025);
         Vec3d next = current.add(difference.normalize().multiply(step));
 
-double terrainY = getGroundYAtPlayerWorld(player, next.x, next.z);
-double safeY = terrainY + 35.0;
+double safeY = getSafeFlightY(player, current, next);
 
 player.setPosition(
         next.x,
@@ -207,7 +206,41 @@ player.setPosition(
 );
         player.setVelocity(Vec3d.ZERO);
     }
+private double getSafeFlightY(
+        ClientPlayerEntity player,
+        Vec3d current,
+        Vec3d next
+) {
+    Vec3d movement = next.subtract(current);
+    double horizontalLength = Math.hypot(movement.x, movement.z);
 
+    double highestGroundY =
+            getGroundYAtPlayerWorld(player, next.x, next.z);
+
+    if (horizontalLength < 0.001) {
+        return highestGroundY + 45.0;
+    }
+
+    double directionX = movement.x / horizontalLength;
+    double directionZ = movement.z / horizontalLength;
+
+    for (int i = 1; i <= 8; i++) {
+        double lookAheadDistance = i * 12.0;
+
+        double sampleX =
+                current.x + directionX * lookAheadDistance;
+        double sampleZ =
+                current.z + directionZ * lookAheadDistance;
+
+        double sampleGroundY =
+                getGroundYAtPlayerWorld(player, sampleX, sampleZ);
+
+        highestGroundY =
+                Math.max(highestGroundY, sampleGroundY);
+    }
+
+    return highestGroundY + 45.0;
+}
     private void lookTowards(ClientPlayerEntity player, Vec3d lookTarget, float smoothing) {
         Vec3d difference = lookTarget.subtract(player.getPos());
 

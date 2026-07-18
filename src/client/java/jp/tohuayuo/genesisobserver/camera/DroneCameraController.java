@@ -197,7 +197,14 @@ public final class DroneCameraController {
         double step = Math.min(maximumStep, distance * smoothing + 0.025);
         Vec3d next = current.add(difference.normalize().multiply(step));
 
-        player.setPosition(next.x, Math.max(next.y, SAFE_MIN_Y), next.z);
+double terrainY = getGroundYAtPlayerWorld(player, next.x, next.z);
+double safeY = terrainY + 35.0;
+
+player.setPosition(
+        next.x,
+        Math.max(next.y, safeY),
+        next.z
+);
         player.setVelocity(Vec3d.ZERO);
     }
 
@@ -234,4 +241,17 @@ public final class DroneCameraController {
         state = nextState;
         stateTicks = 0;
     }
+   private double getGroundYAtPlayerWorld(
+        ClientPlayerEntity player,
+        double x,
+        double z
+) {
+    int groundY = player.getWorld().getTopY(
+            Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
+            MathHelper.floor(x),
+            MathHelper.floor(z)
+    );
+
+    return Math.max(groundY, 64.0);
+} 
 }

@@ -1,6 +1,5 @@
 package jp.tohuayuo.genesisobserver.target;
 
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,6 +16,7 @@ public final class VillageFinder implements TargetFinder {
     private static final int SAME_VILLAGE_DISTANCE = 250;
     private static final int VILLAGE_PRIORITY = 50;
 
+    private BlockPos lastVillagePosition;
     private final Set<BlockPos> visitedVillages = new HashSet<>();
 
     @Override
@@ -38,7 +38,6 @@ public final class VillageFinder implements TargetFinder {
         }
 
         BlockPos playerPosition = client.player.getBlockPos();
-
         BlockPos villagePosition;
 
         if (lastVillagePosition == null) {
@@ -58,6 +57,7 @@ public final class VillageFinder implements TargetFinder {
         }
 
         lastVillagePosition = villagePosition;
+        visitedVillages.add(villagePosition);
 
         return new ObservationTarget(
                 ObservationType.VILLAGE,
@@ -84,10 +84,9 @@ public final class VillageFinder implements TargetFinder {
             );
 
             if (result != null
-                && !hasVisited(result)) {
-                 visitedVillages.add(result);
-            return result;
-}
+                    && !hasVisited(result)) {
+                return result;
+            }
         }
 
         return null;
@@ -105,6 +104,16 @@ public final class VillageFinder implements TargetFinder {
         );
     }
 
+    private boolean hasVisited(BlockPos village) {
+        for (BlockPos visited : visitedVillages) {
+            if (isSameVillage(village, visited)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private boolean isSameVillage(
             BlockPos first,
             BlockPos second
@@ -118,18 +127,3 @@ public final class VillageFinder implements TargetFinder {
         ) < SAME_VILLAGE_DISTANCE;
     }
 }
-private boolean hasVisited(BlockPos village) {
-
-    for (BlockPos visited : visitedVillages) {
-
-        double dx = visited.getX() - village.getX();
-        double dz = visited.getZ() - village.getZ();
-
-        if (Math.hypot(dx, dz) < SAME_VILLAGE_DISTANCE) {
-            return true;
-        }
-    }
-
-    return false;
-}
-

@@ -136,35 +136,36 @@ public void skipToNextTarget(MinecraftClient client) {
     }
 
     private void tickOrbit(MinecraftClient client) {
-        ClientPlayerEntity player = client.player;
-        double groundY = getGroundY(client, target.x, target.z);
+    ClientPlayerEntity player = client.player;
+    double groundY = getGroundY(client, target.x, target.z);
 
-        orbitAngle += (Math.PI * 2.0) / (36.0 * 20.0);
+    Vec3d observationPoint = new Vec3d(
+            target.x + 28.0,
+            groundY + 18.0,
+            target.z + 28.0
+    );
 
-        double wave = Math.sin(stateTicks / 70.0) * 5.0;
-        Vec3d orbitPoint = new Vec3d(
-                target.x + Math.cos(orbitAngle) * ORBIT_RADIUS,
-                Math.max(groundY + 32.0 + wave, APPROACH_HEIGHT),
-                target.z + Math.sin(orbitAngle) * ORBIT_RADIUS
+    moveTowards(player, observationPoint, 0.04, 0.30);
+    lookTowards(
+            player,
+            new Vec3d(target.x, groundY + 5.0, target.z),
+            0.025f
+    );
+
+    if (stateTicks >= ORBIT_TICKS) {
+        Vec3d away = new Vec3d(
+                player.getX() - target.x,
+                0.0,
+                player.getZ() - target.z
         );
 
-        moveTowards(player, orbitPoint, 0.12, 0.72);
-        lookTowards(player, new Vec3d(target.x, groundY + 6.0, target.z), 0.055f);
+        departureDirection = away.lengthSquared() < 0.01
+                ? new Vec3d(1.0, 0.0, 0.0)
+                : away.normalize();
 
-        if (stateTicks >= ORBIT_TICKS) {
-            Vec3d away = new Vec3d(
-                    player.getX() - target.x,
-                    0.0,
-                    player.getZ() - target.z
-            );
-
-            departureDirection = away.lengthSquared() < 0.01
-                    ? new Vec3d(1.0, 0.0, 0.0)
-                    : away.normalize();
-
-            changeState(DroneCameraState.DEPART);
-        }
+        changeState(DroneCameraState.DEPART);
     }
+}
 
     private void tickDepart(MinecraftClient client) {
         ClientPlayerEntity player = client.player;
